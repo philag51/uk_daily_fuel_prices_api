@@ -17,7 +17,7 @@ def home():
         if address:
             querystring = {"address": address}
             headers = {
-                "x-rapidapi-key": "b8d8169634mshd708c826b3fde12p13bc43jsne1878f8d596d",
+                "x-rapidapi-key": "{API_KEY}",
                 "x-rapidapi-host": "uk-daily-fuel-prices.p.rapidapi.com"
             }
             url = "https://uk-daily-fuel-prices.p.rapidapi.com/api/petrol-prices/search"
@@ -48,3 +48,4 @@ def home():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
