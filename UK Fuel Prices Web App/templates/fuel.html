@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Fuel Prices Near You</title>
+    <style>
+        /* === Base Styling === */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            color: white;
+            background: url('{{ url_for("static", filename="gas-station-pic.jpg") }}') no-repeat center center fixed;
+            background-size: cover;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* Dark overlay for readability */
+        .overlay {
+            background: rgba(0, 0, 0, 0.6);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+        }
+
+        /* === Main container === */
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+            margin: 60px auto;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 12px;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        h1 {
+            text-align: center;
+            color: #fff;
+            margin-bottom: 20px;
+            font-size: 2.2em;
+        }
+
+        form.search-bar {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+
+        input {
+            padding: 10px;
+            border-radius: 8px 0 0 8px;
+            border: none;
+            width: 70%;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px 18px;
+            border-radius: 0 8px 8px 0;
+            border: none;
+            background: #2b910cb1;
+            color: #333;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: #2b910cd8;
+        }
+
+        h2 {
+            margin-top: 20px;
+            color: #2b910c;
+        }
+
+        /* Filter dropdown styling */
+        .filter-form {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .filter-form select, .filter-form button {
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            background: rgba(255, 255, 255, 0.9);
+            color: #000;
+            font-weight: 500;
+            margin: 0 5px;
+            cursor: pointer;
+        }
+
+        .filter-form button {
+            background: #2b910cb1;
+            color: #fff;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            background: rgba(255, 255, 255, 0.15);
+            border-left: 4px solid #2b910cb1;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            transition: transform 0.2s ease, background 0.2s ease;
+        }
+
+        li:hover {
+            transform: translateX(5px);
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        .error {
+            color: #ff8080;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        footer {
+            text-align: center;
+            padding: 15px;
+            color: #ddd;
+            font-size: 0.9em;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="overlay"></div>
+
+    <div class="container">
+        <h1>Find Local Fuel Prices</h1>
+
+        <!-- Search Bar -->
+        <form method="POST" class="search-bar">
+            <input type="text" name="address" placeholder="Enter town or city" required>
+            <button type="submit">Get Fuel Prices</button>
+        </form>
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+
+        {% if fuel %}
+            <!-- Filter Dropdown (only shows after results appear) -->
+            <form method="POST" class="filter-form">
+                <input type="hidden" name="address" value="{{ request.form.get('address') }}">
+                <select name="filter">
+                    <option value="all" {% if request.form.get('filter') == 'all' %}selected{% endif %}>Show all</option>
+                    <option value="cheapest_petrol" {% if request.form.get('filter') == 'cheapest_petrol' %}selected{% endif %}>Cheapest Petrol (E10)</option>
+                    <option value="cheapest_diesel" {% if request.form.get('filter') == 'cheapest_diesel' %}selected{% endif %}>Cheapest Diesel (B7)</option>
+                </select>
+                <button type="submit">Apply Filter</button>
+            </form>
+
+            <h2>Results:</h2>
+            <ul>
+                {% for station in fuel %}
+                    <li>
+                        <strong>{{ station.address }}</strong><br>
+                        Brand: {{ station.brand }}<br>
+                        Last Updated: {{ station.last_updated }}<br>
+                        B7: {{ station.prices.B7 }} | E10: {{ station.prices.E10 }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% elif fuel is not none %}
+            <p>No results found for your search.</p>
+        {% endif %}
+    </div>
+
+    <footer>
+        © {{ year }} UK Fuel Finder | Powered by RapidAPI
+    </footer>
+</body>
+</html>
